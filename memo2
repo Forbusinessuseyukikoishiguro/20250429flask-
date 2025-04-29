@@ -1,0 +1,146 @@
+# Flaskを使った言語切り替えデモコードの詳細解説
+
+このFlaskアプリケーションは、GETパラメータを使って日本語と英語を切り替える機能を実装しています。以下でコードを1行ずつ解説します。
+
+## Pythonコード部分
+
+```python
+# Flaskフレームワークから必要なモジュールをインポート
+# Flask: アプリケーションのインスタンスを作成するためのクラス
+# render_template: HTMLテンプレートをレンダリングするための関数
+# request: クライアントからのリクエスト情報にアクセスするためのオブジェクト
+from flask import Flask, render_template, request
+
+# Flaskアプリケーションのインスタンスを作成
+# __name__は現在のモジュール名を渡し、Flaskがテンプレートなどのリソースを見つけるのに役立つ
+app = Flask(__name__)
+
+# 言語テキスト辞書 - 各言語コードに対応するテキストを格納
+texts = {
+    # 日本語テキスト
+    'ja': {
+        'title': 'こんにちは世界',  # ページタイトル
+        'welcome': 'ようこそ！これは言語切り替えデモです。',  # 歓迎メッセージ
+        'description': 'URLに"?lang=en"を追加すると英語に切り替わります。',  # 説明テキスト
+        'button': '続ける'  # ボタンテキスト
+    },
+    # 英語テキスト
+    'en': {
+        'title': 'Hello World',  # 英語のページタイトル
+        'welcome': 'Welcome! This is a language switching demo.',  # 英語の歓迎メッセージ
+        'description': 'Add "?lang=en" to the URL to switch to English.',  # 英語の説明テキスト
+        'button': 'Continue'  # 英語のボタンテキスト
+    }
+}
+
+# ルートURL('/')へのアクセスを処理する関数を定義
+# @app.routeはデコレータと呼ばれ、このURLにアクセスがあった時に関数を実行するよう指定
+@app.route('/')
+def index():
+    # GETパラメータから'lang'の値を取得。指定がなければデフォルト値'ja'を使用
+    # request.args: URLのクエリパラメータを含む辞書のようなオブジェクト
+    # get('lang', 'ja'): 'lang'キーの値を取得。なければ'ja'を返す
+    lang = request.args.get('lang', 'ja')
+    
+    # 取得した言語コードが有効かどうかチェック
+    # 有効な言語('en'か'ja')なら、その値を使用。それ以外なら'ja'を使用
+    # これは不正な値からアプリを守るためのバリデーション
+    lang = lang if lang in ['en', 'ja'] else 'ja'
+    
+    # 選択された言語のテキスト辞書を取得
+    # texts[lang]で、langに対応する言語のテキスト辞書全体を取得
+    current_texts = texts[lang]
+    
+    # テンプレートをレンダリングして、HTTPレスポンスを返す
+    # render_template: 指定したHTMLテンプレートファイルをレンダリング
+    # 第1引数: テンプレートファイル名
+    # 第2引数以降: テンプレートに渡す変数（langと言語テキスト）
+    return render_template('index.html', lang=lang, texts=current_texts)
+
+# Pythonスクリプトが直接実行された場合のみ実行されるコード
+if __name__ == '__main__':
+    # Flaskアプリケーションを起動
+    # debug=True: デバッグモードを有効に（開発中は便利）
+    app.run(debug=True)
+```
+
+## HTMLテンプレート部分 (index.html)
+
+```html
+<!-- DOCTYPEの宣言 - HTMLのバージョンをブラウザに伝える -->
+<!DOCTYPE html>
+<!-- HTML要素の開始。lang属性にはPythonから渡された言語コードを設定 -->
+<html lang="{{ lang }}">
+<head>
+    <!-- 文字エンコーディングをUTF-8に設定 -->
+    <meta charset="UTF-8">
+    <!-- モバイルデバイスのためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル - 選択された言語のtitleを表示 -->
+    <title>{{ texts.title }}</title>
+    <!-- インラインCSSスタイル定義 -->
+    <style>
+        /* body要素のスタイル - フォント、最大幅、マージン、パディングを設定 */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;  /* 上下0、左右auto（中央揃え） */
+            padding: 20px;
+        }
+        /* containerクラスのスタイル - 境界線、パディング、角丸を設定 */
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        /* lang-switchクラスのスタイル - テキスト右揃え、下マージンを設定 */
+        .lang-switch {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 言語切り替えリンクを含むdiv -->
+    <div class="lang-switch">
+        <!-- 条件分岐: 現在の言語が英語なら日本語へのリンク、それ以外なら英語へのリンクを表示 -->
+        {% if lang == 'en' %}
+            <!-- 言語が英語のとき、日本語へ切り替えるリンク -->
+            <a href="/">日本語</a>
+        {% else %}
+            <!-- 言語が日本語のとき、英語へ切り替えるリンク -->
+            <a href="/?lang=en">English</a>
+        {% endif %}
+    </div>
+    
+    <!-- メインコンテンツを含むdiv -->
+    <div class="container">
+        <!-- 見出し - 選択された言語のtitleを表示 -->
+        <h1>{{ texts.title }}</h1>
+        <!-- 段落 - 選択された言語のwelcomeテキストを表示 -->
+        <p>{{ texts.welcome }}</p>
+        <!-- 段落 - 選択された言語のdescriptionテキストを表示 -->
+        <p>{{ texts.description }}</p>
+        <!-- ボタン - 選択された言語のbuttonテキストを表示 -->
+        <button>{{ texts.button }}</button>
+    </div>
+</body>
+</html>
+```
+
+## コードの実行フロー
+
+1. ユーザーがアプリケーションにアクセスするとき:
+   - ルートURL(`/`)にアクセスした場合、`index()`関数が実行される
+   - URLに`?lang=en`が含まれていれば、言語は英語に設定される
+   - 含まれていなければ、デフォルトで日本語に設定される
+
+2. 言語設定に基づいて:
+   - 適切な言語のテキスト辞書が選択される
+   - テンプレートにその言語のテキストと言語コードが渡される
+
+3. テンプレートでは:
+   - 現在の言語に応じてコンテンツが表示される
+   - 言語切り替えリンクが表示される（英語表示中なら日本語へのリンク、その逆も）
+
+これにより、ユーザーは言語切り替えリンクをクリックするだけで、インターフェースの言語を切り替えることができます。
