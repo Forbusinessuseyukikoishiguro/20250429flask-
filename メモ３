@@ -1,0 +1,546 @@
+HTML、CSS、JavaScriptを使ってURL内の"/en/"判定による言語切り替えを行うシンプルなデモサイトを作成します。このサイトは外部のPythonバックエンドと連携することを前提としていますが、フロントエンド部分の実装を主に説明します。
+
+## HTMLファイル (index.html)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多言語対応デモサイト</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo" id="siteLogo">多言語デモ</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-item" id="nav-home">ホーム</a></li>
+                    <li><a href="#" class="nav-item" id="nav-about">概要</a></li>
+                    <li><a href="#" class="nav-item" id="nav-contact">お問い合わせ</a></li>
+                </ul>
+            </nav>
+            <div class="language-switcher">
+                <a href="/" id="ja-link" class="active">日本語</a> | 
+                <a href="/en/" id="en-link">English</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 id="hero-title">多言語対応サイトへようこそ</h1>
+                <p id="hero-description">このサイトはURLの「/en/」の有無で言語を切り替えるデモです。</p>
+                <button id="hero-button">詳細を見る</button>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 id="features-title">主な機能</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3 id="feature1-title">シンプルな実装</h3>
+                        <p id="feature1-desc">URLパスによる言語判定で複雑な設定不要</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 id="feature2-title">レスポンシブデザイン</h3>
+                        <p id="feature2-desc">どのデバイスでも使いやすいレイアウト</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 id="feature3-title">SEOフレンドリー</h3>
+                        <p id="feature3-desc">検索エンジンが言語を正しく認識</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-form">
+            <div class="container">
+                <h2 id="contact-title">お問い合わせ</h2>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name" id="name-label">お名前</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" id="email-label">メールアドレス</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message" id="message-label">メッセージ</label>
+                        <textarea id="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" id="submit-button">送信</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p id="copyright">© 2025 多言語デモサイト. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+```
+
+## CSSファイル (styles.css)
+
+```css
+/* 基本スタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* ヘッダー */
+header {
+    background-color: #4a6fa5;
+    color: white;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* ナビゲーション */
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 1.5rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #e3f2fd;
+}
+
+/* 言語切り替え */
+.language-switcher {
+    margin-left: 1rem;
+}
+
+.language-switcher a {
+    color: white;
+    text-decoration: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+}
+
+.language-switcher a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ヒーローセクション */
+.hero {
+    background-color: #e3f2fd;
+    padding: 5rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+.hero button {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.hero button:hover {
+    background-color: #3a5a8c;
+}
+
+/* 機能セクション */
+.features {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+}
+
+.features h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #2c3e50;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h3 {
+    color: #4a6fa5;
+    margin-bottom: 1rem;
+}
+
+/* お問い合わせフォーム */
+.contact-form {
+    padding: 5rem 0;
+}
+
+.contact-form h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+button[type="submit"] {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    width: 100%;
+}
+
+button[type="submit"]:hover {
+    background-color: #3a5a8c;
+}
+
+/* フッター */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .logo {
+        margin-bottom: 1rem;
+    }
+    
+    nav ul {
+        margin-bottom: 1rem;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+}
+```
+
+## JavaScriptファイル (script.js)
+
+```javascript
+// URLから言語を判定する関数
+function detectLanguage() {
+    // 現在のパスを取得
+    const path = window.location.pathname;
+    
+    // パスに'/en/'が含まれているか確認
+    if (path.includes('/en/')) {
+        return 'en';
+    } else {
+        return 'ja';
+    }
+}
+
+// 言語に応じてテキストを更新する関数
+function updateTexts(lang) {
+    // 言語テキスト辞書
+    const texts = {
+        'ja': {
+            // サイト全般
+            'siteLogo': '多言語デモ',
+            'nav-home': 'ホーム',
+            'nav-about': '概要',
+            'nav-contact': 'お問い合わせ',
+            'copyright': '© 2025 多言語デモサイト. All rights reserved.',
+            
+            // ヒーローセクション
+            'hero-title': '多言語対応サイトへようこそ',
+            'hero-description': 'このサイトはURLの「/en/」の有無で言語を切り替えるデモです。',
+            'hero-button': '詳細を見る',
+            
+            // 機能セクション
+            'features-title': '主な機能',
+            'feature1-title': 'シンプルな実装',
+            'feature1-desc': 'URLパスによる言語判定で複雑な設定不要',
+            'feature2-title': 'レスポンシブデザイン',
+            'feature2-desc': 'どのデバイスでも使いやすいレイアウト',
+            'feature3-title': 'SEOフレンドリー',
+            'feature3-desc': '検索エンジンが言語を正しく認識',
+            
+            // お問い合わせフォーム
+            'contact-title': 'お問い合わせ',
+            'name-label': 'お名前',
+            'email-label': 'メールアドレス',
+            'message-label': 'メッセージ',
+            'submit-button': '送信'
+        },
+        'en': {
+            // サイト全般
+            'siteLogo': 'Multilingual Demo',
+            'nav-home': 'Home',
+            'nav-about': 'About',
+            'nav-contact': 'Contact',
+            'copyright': '© 2025 Multilingual Demo Site. All rights reserved.',
+            
+            // ヒーローセクション
+            'hero-title': 'Welcome to Multilingual Site',
+            'hero-description': 'This site demonstrates language switching based on "/en/" in the URL path.',
+            'hero-button': 'Learn More',
+            
+            // 機能セクション
+            'features-title': 'Key Features',
+            'feature1-title': 'Simple Implementation',
+            'feature1-desc': 'Language detection by URL path without complex setup',
+            'feature2-title': 'Responsive Design',
+            'feature2-desc': 'User-friendly layout on any device',
+            'feature3-title': 'SEO Friendly',
+            'feature3-desc': 'Search engines correctly recognize the language',
+            
+            // お問い合わせフォーム
+            'contact-title': 'Contact Us',
+            'name-label': 'Name',
+            'email-label': 'Email',
+            'message-label': 'Message',
+            'submit-button': 'Submit'
+        }
+    };
+    
+    // 現在の言語のテキスト辞書を取得
+    const currentTexts = texts[lang];
+    
+    // 各要素のテキストを更新
+    for (const [id, text] of Object.entries(currentTexts)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = text;
+        }
+    }
+    
+    // 言語切り替えリンクのアクティブ状態を更新
+    document.getElementById('ja-link').classList.toggle('active', lang === 'ja');
+    document.getElementById('en-link').classList.toggle('active', lang === 'en');
+    
+    // HTML要素の言語属性を設定
+    document.documentElement.lang = lang;
+}
+
+// ページ読み込み時の処理
+document.addEventListener('DOMContentLoaded', function() {
+    // 言語を検出して適用
+    const lang = detectLanguage();
+    updateTexts(lang);
+    
+    // お問い合わせフォームの送信処理
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // ここでフォームデータの送信処理を行う
+            // 実際の実装ではサーバーサイドのPythonコードと連携
+            const lang = detectLanguage();
+            const successMessage = lang === 'en' 
+                ? 'Thank you for your message. We will get back to you soon.'
+                : 'お問い合わせありがとうございます。近日中にご連絡いたします。';
+                
+            alert(successMessage);
+            contactForm.reset();
+        });
+    }
+});
+```
+
+## Python バックエンド連携部分 (app.py)
+
+以下は、このフロントエンドと連携するFlaskの最小実装例です：
+
+```python
+from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__, static_folder='.', static_url_path='')
+
+@app.route('/')
+@app.route('/en/')
+def index():
+    return app.send_static_file('index.html')
+
+@app.route('/api/submit-form', methods=['POST'])
+def submit_form():
+    # フォームデータを取得
+    data = request.json
+    
+    # 言語を判断（リクエストのRefererヘッダーからURLパスを取得）
+    referer = request.headers.get('Referer', '')
+    lang = 'en' if '/en/' in referer else 'ja'
+    
+    # メール送信やデータベース保存などの処理をここで行う
+    # ...
+    
+    # 言語に応じたレスポンスを返す
+    if lang == 'en':
+        return jsonify({'status': 'success', 'message': 'Thank you for your message. We will get back to you soon.'})
+    else:
+        return jsonify({'status': 'success', 'message': 'お問い合わせありがとうございます。近日中にご連絡いたします。'})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+## 実装の解説
+
+### 1. URLパスによる言語判定
+
+URLに "/en/" が含まれているかどうかで言語を判断しています。JavaScript側では：
+
+```javascript
+function detectLanguage() {
+    const path = window.location.pathname;
+    
+    if (path.includes('/en/')) {
+        return 'en';
+    } else {
+        return 'ja';
+    }
+}
+```
+
+### 2. 言語切り替えリンク
+
+```html
+<div class="language-switcher">
+    <a href="/" id="ja-link" class="active">日本語</a> | 
+    <a href="/en/" id="en-link">English</a>
+</div>
+```
+
+日本語版と英語版へのリンクを提供しています。現在の言語に応じて適切なリンクがハイライト表示されます。
+
+### 3. コンテンツの多言語化
+
+各テキスト要素にIDを付け、JavaScriptで言語に応じて内容を切り替えています：
+
+```javascript
+const texts = {
+    'ja': {
+        'hero-title': '多言語対応サイトへようこそ',
+        // 他の日本語テキスト
+    },
+    'en': {
+        'hero-title': 'Welcome to Multilingual Site',
+        // 他の英語テキスト
+    }
+};
+```
+
+これらのテキストは実際のアプリケーションでは、サーバーサイドから提供することもできます。
+
+### 4. SEO対応
+
+言語に応じてHTML要素の言語属性を更新しています：
+
+```javascript
+document.documentElement.lang = lang;
+```
+
+これにより、検索エンジンが適切に言語を認識できます。
+
+## 実装上のメリット
+
+1. **シンプルさ**: i18n特化のライブラリを使わずに実装できる
+2. **SEOフレンドリー**: 言語ごとに異なるURLを持つため検索エンジン最適化に有利
+3. **ユーザー体験**: 言語切り替えが直感的
+4. **拡張性**: 新しい言語を追加するのが容易
+
+実際の大規模アプリケーションでは、テキストを別ファイルで管理したり、バックエンドとの連携をさらに強化することをお勧めします。
